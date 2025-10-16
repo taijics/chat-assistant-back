@@ -31,3 +31,12 @@ export function delAiUserTeamByIds(ids: string, option?: RequestOption) {
 export function aiUserTeamImport(params: object[], option?: RequestOption) {
     return createAxios(option).post(`${baseUrl}/api/admin/user/aiUserTeam/imports`, params)
 }
+
+
+
+export function searchTeamAdmin(query: string = '', limit: number = 10, option?: RequestOption) {
+  return createAxios(option).get(
+    `${baseUrl}/api/admin/user/aiUser/searchTeamAdmin`,
+    { params: { query, limit } }
+  )
+}

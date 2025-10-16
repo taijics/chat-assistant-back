@@ -23,8 +23,17 @@
 <script setup lang="tsx">
 import type { PropType } from 'vue'
 import { ref, watchEffect } from 'vue'
-import { getAiUserTeamById, postInsertAiUserTeam, putUpdateAiUserTeam } from '@/api/admin/user/aiUserTeam'
+import {
+  getAiUserTeamById,
+  postInsertAiUserTeam,
+  putUpdateAiUserTeam,
+  searchTeamAdmin
+} from '@/api/admin/user/aiUserTeam'
 import { useI18n } from 'vue-i18n'
+
+// 组长下拉数据
+const teamAdminOptions = ref([]) // [{id, phone, username, display}, ...]
+const teamAdminLoading = ref(false)
 
 const props = defineProps({
   handleType: {
@@ -47,29 +56,64 @@ const formLoading = ref(false)
 const saveLoading = ref(false)
 const formData = ref({})
 
-init()
+function loadInitialTeamAdmin() {
+  teamAdminLoading.value = true
+  searchTeamAdmin('', 10).then((res) => {
+    teamAdminOptions.value = (res.data || []).map((u: any) => ({
+      ...u,
+      display: `${u.phone}-${u.username}` // 拼接显示内容
+    }))
+    teamAdminLoading.value = false
+  })
+}
+loadInitialTeamAdmin()
 
+// 远程搜索
+function remoteSearchTeamAdmin(query: string) {
+  teamAdminLoading.value = true;
+  searchTeamAdmin(query, 10).then(res => {
+    // 如果data为空，options设成空数组
+    const arr = res.data || [];
+    teamAdminOptions.value = arr.length > 0
+      ? arr.map(u => ({ ...u, display: `${u.phone}-${u.username}` }))
+      : [];
+    teamAdminLoading.value = false;
+  });
+}
+// 表单初始化
+init()
 async function init() {
   formLoading.value = true
   if (props.handleType !== 'add') {
-    await getAiUserTeamById(props.modelValue!.id!).then(res => {
+    await getAiUserTeamById(props.modelValue!.id!).then((res) => {
       formData.value = res.data
     })
   }
   formLoading.value = false
 }
 
-// 表单列定义
-const columns = ref<CommonFormColumn<typeof formData.value> []>([])
+// 表单列定义（只保留需要的字段）
+const columns = ref<CommonFormColumn<typeof formData.value>[]>([])
 watchEffect(() => {
   columns.value = [
-    {prop: 'title',label: '名称',type: 'text',rules: [{required: true}]},
-    {prop: 'teamAdminId',label: '组长',type: 'text'},
-    {prop: 'icon',label: '图标',type: 'upload-img'},
-    {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-    {prop: 'createBy',label: '创建人',type: 'number'},
-    {prop: 'updateBy',label: '修改人',type: 'number'},
-    {prop: 'deleted',label: '是否已删除',type: 'switch'}
+    { prop: 'title', label: '名称', type: 'text', rules: [{ required: true }] },
+    {
+      prop: 'teamAdminId',
+      label: '组长',
+      type: 'select',
+      filterable: true, // 可以输入
+      remote: true, // 远程搜索
+      remoteMethod: remoteSearchTeamAdmin,
+      options: teamAdminOptions.value,
+      loading: teamAdminLoading.value,
+      props: {
+        label: 'display',
+        value: 'id'
+      },
+      placeholder: '请输入手机号或姓名',
+      noDataText: '暂无数据' // 有些组件是 no-data-text
+    },
+    { prop: 'icon', label: '图标', type: 'upload-img' }
   ]
 })
 
