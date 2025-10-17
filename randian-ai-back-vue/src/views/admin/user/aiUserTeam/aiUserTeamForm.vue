@@ -54,7 +54,7 @@ const emits = defineEmits<{
 const formRef = ref()
 const formLoading = ref(false)
 const saveLoading = ref(false)
-const formData = ref({})
+const formData = ref<AiUserTeamForm>({});
 
 function loadInitialTeamAdmin() {
   teamAdminLoading.value = true
@@ -70,15 +70,13 @@ loadInitialTeamAdmin()
 
 // 远程搜索
 function remoteSearchTeamAdmin(query: string) {
-  teamAdminLoading.value = true;
-  searchTeamAdmin(query, 10).then(res => {
+  teamAdminLoading.value = true
+  searchTeamAdmin(query, 10).then((res) => {
     // 如果data为空，options设成空数组
-    const arr = res.data || [];
-    teamAdminOptions.value = arr.length > 0
-      ? arr.map(u => ({ ...u, display: `${u.phone}-${u.username}` }))
-      : [];
-    teamAdminLoading.value = false;
-  });
+    const arr = res.data || []
+    teamAdminOptions.value = arr.length > 0 ? arr.map((u) => ({ ...u, display: `${u.phone}-${u.username}` })) : []
+    teamAdminLoading.value = false
+  })
 }
 // 表单初始化
 init()
@@ -113,12 +111,27 @@ watchEffect(() => {
       placeholder: '请输入手机号或姓名',
       noDataText: '暂无数据' // 有些组件是 no-data-text
     },
-    { prop: 'icon', label: '图标', type: 'upload-img' }
+    {
+      prop: 'icon',
+      label: '图标',
+      type: 'upload-img',
+      single: 'object'
+    }
   ]
 })
-
+interface AiUserTeamForm {
+  title?: string;
+  teamAdminId?: number | string;
+  icon?: any;
+  teamUserNum?: number;
+}
 // 保存方法
 function save() {
+  // 只有 icon 存在并且是数组才处理
+  if (Array.isArray(formData.value.icon) && formData.value.icon.length > 0) {
+    formData.value.icon =
+      typeof formData.value.icon[0] === 'string' ? formData.value.icon[0] : formData.value.icon[0]?.url ?? ''
+  }
   formRef.value.submit().then(() => {
     const fun = props.handleType === 'add' ? postInsertAiUserTeam : putUpdateAiUserTeam
     fun(formData.value, {
