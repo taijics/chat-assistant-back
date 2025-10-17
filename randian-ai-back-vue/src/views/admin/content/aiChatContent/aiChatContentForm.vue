@@ -23,7 +23,11 @@
 <script setup lang="tsx">
 import type { PropType } from 'vue'
 import { ref, watchEffect } from 'vue'
-import { getAiChatContentById, postInsertAiChatContent, putUpdateAiChatContent } from '@/api/admin/content/aiChatContent'
+import {
+  getAiChatContentById,
+  postInsertAiChatContent,
+  putUpdateAiChatContent
+} from '@/api/admin/content/aiChatContent'
 import { useI18n } from 'vue-i18n'
 import useDictDetails from '@/utils/dict'
 
@@ -53,7 +57,7 @@ init()
 async function init() {
   formLoading.value = true
   if (props.handleType !== 'add') {
-    await getAiChatContentById(props.modelValue!.id!).then(res => {
+    await getAiChatContentById(props.modelValue!.id!).then((res) => {
       formData.value = res.data
     })
   }
@@ -61,21 +65,22 @@ async function init() {
 }
 
 // 表单列定义
-const columns = ref<CommonFormColumn<typeof formData.value> []>([])
+const columns = ref<CommonFormColumn<typeof formData.value>[]>([])
 watchEffect(() => {
   columns.value = [
-    {prop: 'id',label: '主键ID',type: 'number'},
-    {prop: 'contentType',label: '图片/表情/文本',type: 'select',rules: [{required: true}],itemList: useDictDetails(2)},
-    {prop: 'uploadUserId',label: '上传用户id',type: 'select',itemList: useDictDetails(2)},
-    {prop: 'useType',label: '使用分类',type: 'select',itemList: useDictDetails(2)},
-    {prop: 'content',label: '内容',type: 'text'},
-    {prop: 'img',label: '图片/表情',type: 'upload-img'},
-    {prop: 'contentTypeId',label: '分类id',type: 'select',itemList: useDictDetails(2)},
-    {prop: 'createTime',label: '创建时间',type: 'datetime'},
-    {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-    {prop: 'createBy',label: '创建人',type: 'number'},
-    {prop: 'updateBy',label: '修改人',type: 'number'},
-    {prop: 'deleted',label: '是否已删除',type: 'switch'}
+    {
+      prop: 'contentType',
+      label: '图片/表情/文本',
+      type: 'select',
+      rules: [{ required: true }],
+      itemList: useDictDetails(2)
+    },
+    { prop: 'uploadUserId', label: '上传用户id', type: 'select', itemList: useDictDetails(2) },
+    { prop: 'useType', label: '使用分类', type: 'select', itemList: useDictDetails(2) },
+    { prop: 'content', label: '内容', type: 'text' },
+    { prop: 'img', label: '图片/表情', type: 'upload-img' },
+    { prop: 'contentTypeId', label: '分类id', type: 'select', itemList: useDictDetails(2) },
+    { prop: 'createTime', label: '创建时间', type: 'datetime' },
   ]
 })
 

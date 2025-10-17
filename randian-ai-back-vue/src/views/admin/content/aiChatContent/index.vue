@@ -67,27 +67,17 @@ const topFilterColumns = computed(() => [
   {prop: 'uploadUserId',label: '上传用户id',type: 'select',itemList: useDictDetails(2)},
   {prop: 'content',label: '内容'},
   {prop: 'contentTypeId',label: '分类id',type: 'select',itemList: useDictDetails(2)},
-  {prop: 'createTime',label: '创建时间',type: 'datetime'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
-  {prop: 'deleted',label: '是否已删除'}
 ])
 
 const columns: Ref<CommonTableColumn[]> = computed(() => [
   { type: 'index', width: 90 },
   {prop: 'id',label: '主键ID',type: 'number'},
-  {prop: 'contentType',label: '整数',type: 'number'},
   {prop: 'contentType',label: '图片/表情/文本',type: 'select',itemList: useDictDetails(2)},
   {prop: 'uploadUserId',label: '上传用户id',type: 'select',itemList: useDictDetails(2)},
   {prop: 'useType',label: '使用分类',type: 'select',itemList: useDictDetails(2)},
   {prop: 'content',label: '内容',type: 'text'},
   {prop: 'contentTypeId',label: '分类id',type: 'select',itemList: useDictDetails(2)},
-  {prop: 'datetime',label: '创建时间',type: 'datetime'},
   {prop: 'createTime',label: '创建时间',type: 'datetime'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
   {prop: 'deleted',label: '是否已删除',type: 'switch'},
   {
     type: 'operation',

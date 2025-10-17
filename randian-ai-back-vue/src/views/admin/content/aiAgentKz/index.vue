@@ -21,12 +21,12 @@
           {{ $t('common.add') }}
         </el-button>
         <el-button
-            v-auth="'admin:content:aiAgentKz:del'"
-            type="danger"
-            icon="delete"
-            :disabled="selectRows.length === 0"
-            @click="del(selectRows)"
-        >{{ $t('common.del') }}
+          v-auth="'admin:content:aiAgentKz:del'"
+          type="danger"
+          icon="delete"
+          :disabled="selectRows.length === 0"
+          @click="del(selectRows)"
+          >{{ $t('common.del') }}
         </el-button>
       </template>
     </m-table>
@@ -45,11 +45,10 @@
   </div>
 </template>
 <script setup lang="tsx">
-import { type Ref, computed, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { delAiAgentKzByIds, queryAiAgentKzList } from '@/api/admin/content/aiAgentKz'
 import AiAgentKzForm from './aiAgentKzForm.vue'
 import { useI18n } from 'vue-i18n'
-import useDictDetails from '@/utils/dict'
 import AiAgentKzImport from './aiAgentKzImport.vue'
 
 const { t } = useI18n()
@@ -62,42 +61,96 @@ const filterParam = reactive({})
 const importRef = ref()
 
 const topFilterColumns = computed(() => [
-  {prop: 'title',label: '智能体名称'},
-  {prop: 'expireDate',label: '到期时间',type: 'date'},
-  {prop: 'isLongTime',label: '长期有效',type: 'select',itemList: useDictDetails(1)},
-  {prop: 'stats',label: '状态',type: 'select',itemList: useDictDetails(2)},
-  {prop: 'createTime',label: '创建时间',type: 'datetime'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
-  {prop: 'deleted',label: '是否已删除'}
+  { prop: 'title', label: '智能体名称' },
+  {
+    prop: 'isLongTime',
+    label: '长期有效',
+    type: 'select',
+    options: [
+      { label: '否', value: false },
+      { label: '是', value: true }
+    ]
+  },
+  {
+    prop: 'stats',
+    label: '状态',
+    type: 'select',
+    options: [
+      { label: '正常', value: 1 },
+      { label: '已到期', value: 2 },
+      { label: '不可用', value: 0 }
+    ]
+  }
 ])
-
-const columns: Ref<CommonTableColumn[]> = computed(() => [
+const columns = computed(() => [
   { type: 'index', width: 90 },
-  {prop: 'id',label: 'id',type: 'number',notExport: true},
-  {prop: 'title',label: '智能体名称',type: 'text'},
-  {prop: 'expireDate',label: '到期时间',type: 'date'},
-  {prop: 'isLongTime',label: '长期有效',type: 'select',itemList: useDictDetails(1)},
-  {prop: 'stats',label: '状态',type: 'select',itemList: useDictDetails(2),notExport: true},
-  {prop: 'createTime',label: '创建时间',type: 'datetime'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
-  {prop: 'deleted',label: '是否已删除',type: 'switch'},
+  { prop: 'id', label: 'id', type: 'number', notExport: true },
+  { prop: 'title', label: '智能体名称', type: 'text' },
+  { prop: 'expireDate', label: '到期时间', type: 'date' },
+  {
+    prop: 'isLongTime',
+    label: '长期有效',
+    type: 'select',
+    options: [
+      { label: '否', value: false },
+      { label: '是', value: true }
+    ],
+    formatter: (row) => (row.isLongTime ? '是' : '否')
+    // 若后端返回 0/1 可改为 formatter: (row) => (row.isLongTime === true || row.isLongTime === 1 ? '是' : '否')
+  },
+  {
+    prop: 'stats',
+    label: '状态',
+    type: 'select',
+    options: [
+      { label: '正常', value: 1 },
+      { label: '已到期', value: 2 },
+      { label: '不可用', value: 0 }
+    ],
+    formatter: (row) => {
+      switch (row.stats) {
+        case 1:
+          return '正常'
+        case 2:
+          return '已到期'
+        case 0:
+          return '不可用'
+        default:
+          return ''
+      }
+    },
+    cellStyle: (row) => {
+      if (row.stats === 1) return { color: 'green' }
+      if (row.stats === 2 || row.stats === 0) return { color: 'red' }
+      return {}
+    },
+    notExport: true
+  },
+  { prop: 'createTime', label: '创建时间', type: 'datetime' },
   {
     type: 'operation',
     fixed: 'right',
     align: 'center',
     buttons: [
-      { label: t('common.edit'), auth: 'admin:content:aiAgentKz:edit', icon: 'edit', onClick: (row) => openForm('edit', row) },
+      {
+        label: t('common.edit'),
+        auth: 'admin:content:aiAgentKz:edit',
+        icon: 'edit',
+        onClick: (row) => openForm('edit', row)
+      },
       {
         label: t('common.detail'),
         auth: 'admin:content:aiAgentKz:detail',
         icon: 'document',
         onClick: (row) => openForm('detail', row)
       },
-      { label: t('common.del'), auth: 'admin:content:aiAgentKz:del', icon: 'delete', type: 'danger', onClick: (row) => del([row]) }
+      {
+        label: t('common.del'),
+        auth: 'admin:content:aiAgentKz:del',
+        icon: 'delete',
+        type: 'danger',
+        onClick: (row) => del([row])
+      }
     ]
   }
 ])
