@@ -77,10 +77,9 @@ watchEffect(() => {
     },
     { prop: 'uploadUserId', label: '上传用户id', type: 'select', itemList: useDictDetails(2) },
     { prop: 'useType', label: '使用分类', type: 'select', itemList: useDictDetails(2) },
-    { prop: 'content', label: '内容', type: 'text' },
     { prop: 'img', label: '图片/表情', type: 'upload-img' },
     { prop: 'contentTypeId', label: '分类id', type: 'select', itemList: useDictDetails(2) },
-    { prop: 'createTime', label: '创建时间', type: 'datetime' },
+    { prop: 'content', label: '内容', type: 'textarea' }
   ]
 })
 
