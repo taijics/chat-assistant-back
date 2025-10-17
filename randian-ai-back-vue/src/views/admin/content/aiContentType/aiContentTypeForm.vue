@@ -23,7 +23,11 @@
 <script setup lang="tsx">
 import type { PropType } from 'vue'
 import { ref, watchEffect } from 'vue'
-import { getAiContentTypeById, postInsertAiContentType, putUpdateAiContentType } from '@/api/admin/content/aiContentType'
+import {
+  getAiContentTypeById,
+  postInsertAiContentType,
+  putUpdateAiContentType
+} from '@/api/admin/content/aiContentType'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
@@ -52,7 +56,7 @@ init()
 async function init() {
   formLoading.value = true
   if (props.handleType !== 'add') {
-    await getAiContentTypeById(props.modelValue!.id!).then(res => {
+    await getAiContentTypeById(props.modelValue!.id!).then((res) => {
       formData.value = res.data
     })
   }
@@ -60,15 +64,34 @@ async function init() {
 }
 
 // 表单列定义
-const columns = ref<CommonFormColumn<typeof formData.value> []>([])
+const columns = ref<CommonFormColumn<typeof formData.value>[]>([])
 watchEffect(() => {
   columns.value = [
-    {prop: 'title',label: '类别名称',type: 'text'},
-    {prop: 'careateUserId',label: '创建者',type: 'number'},
-    {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-    {prop: 'createBy',label: '创建人',type: 'number'},
-    {prop: 'updateBy',label: '修改人',type: 'number'},
-    {prop: 'deleted',label: '是否已删除',type: 'switch'}
+    {
+      prop: 'typeClass',
+      label: '类别分类',
+      type: 'select', // 或 'radio'
+      options: [
+        { label: '图片', value: 0 },
+        { label: '表情', value: 1 },
+        { label: '文字', value: 2 }
+      ],
+      defaultValue: 2,
+      rules: [{ required: true, message: '类别分类必需选择', trigger: 'change' }]
+    },
+    {
+      prop: 'title',
+      label: '类别名称',
+      type: 'text',
+      rules: [{ required: true, message: '类别名称不能为空', trigger: 'blur' }]
+    },
+    {
+      prop: 'deleted',
+      label: '是否可用',
+      type: 'switch',
+      activeValue: false, // “可用”实际值为 false
+      inactiveValue: true // “不可用”实际值为 true
+    }
   ]
 })
 

@@ -24,8 +24,8 @@
 import type { PropType } from 'vue'
 import { ref, watchEffect } from 'vue'
 import { getAiUserById, postInsertAiUser, putUpdateAiUser } from '@/api/admin/user/aiUser'
+import { queryAiUserTeamList } from '@/api/admin/user/aiUserTeam' // 你需确保有这个接口
 import { useI18n } from 'vue-i18n'
-import useDictDetails from '@/utils/dict'
 
 const props = defineProps({
   handleType: {
@@ -46,41 +46,100 @@ const emits = defineEmits<{
 const formRef = ref()
 const formLoading = ref(false)
 const saveLoading = ref(false)
-const formData = ref({})
 
+// 可用状态默认打开（0可用，1不可用，按你后端约定）
+const formData = ref<AiUserForm>({
+  isdel: 0
+})
+
+const teamOptions = ref([]) // 小组下拉数据
+const teamLoading = ref(false)
+
+function loadInitialTeam() {
+  teamLoading.value = true
+  queryAiUserTeamList({
+    isPage: true,
+    param: { pageIndex: 1, pageSize: 10 }
+  }).then((res) => {
+    teamOptions.value = (res.data?.list || []).map((u) => ({
+      ...u,
+      display: u.title
+    }))
+    teamLoading.value = false
+  })
+}
+loadInitialTeam()
+
+function remoteSearchTeam(query: string) {
+  teamLoading.value = true
+  queryAiUserTeamList({
+    isPage: true,
+    param: { title: query, pageIndex: 1, pageSize: 10 }
+  }).then(res => {
+    const arr = res.data?.list || []
+    teamOptions.value = arr.length > 0 ? arr.map(u => ({
+      ...u,
+      display: u.title
+    })) : []
+    teamLoading.value = false
+  })
+}
 init()
-
 async function init() {
   formLoading.value = true
   if (props.handleType !== 'add') {
-    await getAiUserById(props.modelValue!.id!).then(res => {
+    await getAiUserById(props.modelValue!.id!).then((res) => {
       formData.value = res.data
+      // 保证编辑时可用状态有值（如果后端返回null，设置为0）
+      if (formData.value.isdel == null) formData.value.isdel = 0
     })
   }
   formLoading.value = false
 }
 
-// 表单列定义
-const columns = ref<CommonFormColumn<typeof formData.value> []>([])
+const columns = ref<CommonFormColumn<typeof formData.value>[]>([])
 watchEffect(() => {
   columns.value = [
-    {prop: 'phone',label: '手机号',type: 'text',rules: [{required: true},{type: 'phone'}]},
-    {prop: 'password',label: '文本',type: 'password',rules: [{required: true}]},
-    {prop: 'username',label: '姓名',type: 'text',rules: [{required: true}]},
-    {prop: 'teamId',label: '小组id',type: 'select',itemList: useDictDetails(2)},
-    {prop: 'isdel',label: '可用状态',type: 'switch',rules: [{type: 'int'}]},
-    {prop: 'firmId',label: '所属公司',type: 'text'},
-    {prop: 'remark',label: '备注',type: 'textarea'},
-    {prop: 'careateTime',label: '创建时间',type: 'datetime'},
-    {prop: 'createTime',label: '创建时间',type: 'datetime'},
-    {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-    {prop: 'createBy',label: '创建人',type: 'number'},
-    {prop: 'updateBy',label: '修改人',type: 'number'},
-    {prop: 'deleted',label: '是否已删除',type: 'switch'},
-    {prop: 'sysOrgId',label: '机构ID',type: 'number'},
-    {prop: 'sysRoleId',label: '角色ID',type: 'number'}
+    { prop: 'phone', label: '手机号', type: 'text', rules: [{ required: true }, { type: 'phone' }] },
+    { prop: 'password', label: '密码', type: 'password', rules: [{ required: true }],showPassword: true  },
+    { prop: 'username', label: '姓名', type: 'text', rules: [{ required: true }] },
+    {
+      prop: 'teamId',
+      label: '小组',
+      type: 'select',
+      filterable: true,
+      remote: true,
+      remoteMethod: remoteSearchTeam,
+      options: teamOptions.value,
+      loading: teamLoading.value,
+      props: {
+        label: 'display',
+        value: 'id'
+      },
+      placeholder: '请输入小组名称',
+      noDataText: '暂无数据'
+    },
+   {
+     prop: 'isdel',
+     label: '可用状态',
+     type: 'switch',
+     rules: [{ type: 'int' }],
+     activeValue: 0,    // 开启时的值
+     inactiveValue: 1   // 关闭时的值
+   },
+    /* { prop: 'firmId', label: '所属公司', type: 'text' }, */
+    { prop: 'remark', label: '备注', type: 'textarea' }
   ]
 })
+interface AiUserForm {
+  phone?: string
+  password?: string
+  username?: string
+  teamId?: number | string
+  isdel?: number
+  firmId?: string
+  remark?: string
+}
 
 // 保存方法
 function save() {

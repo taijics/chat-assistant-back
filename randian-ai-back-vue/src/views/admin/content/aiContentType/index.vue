@@ -21,12 +21,12 @@
           {{ $t('common.add') }}
         </el-button>
         <el-button
-            v-auth="'admin:content:aiContentType:del'"
-            type="danger"
-            icon="delete"
-            :disabled="selectRows.length === 0"
-            @click="del(selectRows)"
-        >{{ $t('common.del') }}
+          v-auth="'admin:content:aiContentType:del'"
+          type="danger"
+          icon="delete"
+          :disabled="selectRows.length === 0"
+          @click="del(selectRows)"
+          >{{ $t('common.del') }}
         </el-button>
       </template>
     </m-table>
@@ -61,38 +61,87 @@ const filterParam = reactive({})
 const importRef = ref()
 
 const topFilterColumns = computed(() => [
-  {prop: 'title',label: '类别名称'},
-  {prop: 'careateUserId',label: '创建者',type: 'number'},
-  {prop: 'createTime',label: '创建时间',type: 'datetime'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
-  {prop: 'deleted',label: '是否已删除'}
+  { prop: 'title', label: '类别名称' },
+  { prop: 'careateUserId', label: '创建人', type: 'number' },
+  {
+    prop: 'deleted',
+    label: '是否可用',
+    type: 'switch',
+    activeValue: false, // “可用”实际值为 false
+    inactiveValue: true // “不可用”实际值为 true
+  }
 ])
 
 const columns: Ref<CommonTableColumn[]> = computed(() => [
   { type: 'index', width: 90 },
-  {prop: 'id',label: 'id',type: 'number'},
-  {prop: 'title',label: '类别名称',type: 'text'},
-  {prop: 'careateUserId',label: '创建者',type: 'number'},
-  {prop: 'createTime',label: '创建时间',type: 'datetime'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
-  {prop: 'deleted',label: '是否已删除',type: 'switch'},
+  { prop: 'id', label: 'id', type: 'number' },
+  { prop: 'title', label: '类别名称', type: 'text' },
+  { prop: 'careateUserId', label: '创建人', type: 'number' },
+  {
+    prop: 'typeClass', // 类别分类
+    label: '类别分类',
+    type: 'text',
+    formatter: (row) => {
+      switch (row.typeClass) {
+        case 0:
+          return '图片'
+        case 1:
+          return '表情'
+        case 2:
+          return '文字'
+        default:
+          return ''
+      }
+    }
+  },
+  {
+    prop: 'useScope', // 使用范围
+    label: '使用范围',
+    type: 'text',
+    formatter: (row) => {
+      switch (row.useScope) {
+        case 0:
+          return '公司'
+        case 1:
+          return '小组'
+        case 2:
+          return '私人'
+        default:
+          return ''
+      }
+    }
+  },
+  { prop: 'createTime', label: '创建时间', type: 'datetime' },
+  {
+    prop: 'deleted',
+    label: '是否可用',
+    type: 'text',
+    formatter: (row) => (row.deleted === false ? '可用' : '不可用')
+  },
   {
     type: 'operation',
     fixed: 'right',
     align: 'center',
     buttons: [
-      { label: t('common.edit'), auth: 'admin:content:aiContentType:edit', icon: 'edit', onClick: (row) => openForm('edit', row) },
+      {
+        label: t('common.edit'),
+        auth: 'admin:content:aiContentType:edit',
+        icon: 'edit',
+        onClick: (row) => openForm('edit', row)
+      },
       {
         label: t('common.detail'),
         auth: 'admin:content:aiContentType:detail',
         icon: 'document',
         onClick: (row) => openForm('detail', row)
       },
-      { label: t('common.del'), auth: 'admin:content:aiContentType:del', icon: 'delete', type: 'danger', onClick: (row) => del([row]) }
+      {
+        label: t('common.del'),
+        auth: 'admin:content:aiContentType:del',
+        icon: 'delete',
+        type: 'danger',
+        onClick: (row) => del([row])
+      }
     ]
   }
 ])

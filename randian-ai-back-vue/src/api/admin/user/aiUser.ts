@@ -31,3 +31,4 @@ export function delAiUserByIds(ids: string, option?: RequestOption) {
 export function aiUserImport(params: object[], option?: RequestOption) {
     return createAxios(option).post(`${baseUrl}/api/admin/user/aiUser/imports`, params)
 }
+

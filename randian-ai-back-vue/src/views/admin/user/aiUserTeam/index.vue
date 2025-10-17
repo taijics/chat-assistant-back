@@ -62,11 +62,6 @@ const importRef = ref()
 
 const topFilterColumns = computed(() => [
   {prop: 'title',label: '名称',rules: [{}]},
-  {prop: 'teamAdminId',label: '组长'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
-  {prop: 'deleted',label: '是否已删除'}
 ])
 
 const columns: Ref<CommonTableColumn[]> = computed(() => [
@@ -76,11 +71,6 @@ const columns: Ref<CommonTableColumn[]> = computed(() => [
   {prop: 'teamAdminId',label: '组长',type: 'text'},
   {prop: 'createTime',label: '创建时间',type: 'datetime'},
   {prop: 'icon',label: '图标',type: 'upload-img'},
-  {prop: 'teamUserNum',label: '小组人数',type: 'number'},
-  {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-  {prop: 'createBy',label: '创建人',type: 'number'},
-  {prop: 'updateBy',label: '修改人',type: 'number'},
-  {prop: 'deleted',label: '是否已删除',type: 'switch'},
   {
     type: 'operation',
     fixed: 'right',

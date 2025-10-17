@@ -65,14 +65,18 @@ const columns = ref<CommonFormColumn<typeof formData.value> []>([])
 watchEffect(() => {
   columns.value = [
     {prop: 'title',label: '智能体名称',type: 'text'},
-    {prop: 'expireDate',label: '到期时间',type: 'date'},
     {prop: 'isLongTime',label: '长期有效',type: 'radio-group',itemList: useDictDetails(1)},
-    {prop: 'stats',label: '状态',type: 'radio-group',itemList: useDictDetails(2)},
-    {prop: 'createTime',label: '创建时间',type: 'datetime'},
-    {prop: 'updateTime',label: '修改时间',type: 'datetime'},
-    {prop: 'createBy',label: '创建人',type: 'number'},
-    {prop: 'updateBy',label: '修改人',type: 'number'},
-    {prop: 'deleted',label: '是否已删除',type: 'switch'}
+    {prop: 'expireDate',label: '到期时间',type: 'date'},
+    {
+      prop: 'stats',
+      label: '状态',
+      type: 'radio',
+      options: [
+        { label: '正常', value: 1 },
+        { label: '已到期', value: 2 },
+        { label: '不可用', value: 0 }
+      ]
+    }
   ]
 })
 
